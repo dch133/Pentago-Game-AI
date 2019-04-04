@@ -11,17 +11,17 @@ import static student_player.Heuristic.heuristicFunction;
 public class MyTools
 {
     /* Parameters */
-    public static final int SUBSET_OF_BEST_MOVES        = 10; // 10 moves for depth 3
-    public static int DEPTH                             = 3;
-    public static int TURN_TO_INCREASE_DEPTH            = 20; // found by trial and error
-    public static double COST_MULTIPLIYER_WHEN_BLACK    = 2; // White higher chance of winning: defend more if Black
-    public static int POTENTIAL_WIN_COST                = Integer.MAX_VALUE/2;
-    public static int WIN_COST                          = Integer.MAX_VALUE;
-    public static int SINGLES_COST                      = 6;
-    public static int TWO_CONSEC_COST                   = 20;
-    public static int THREE_CONSEC_COST                 = 40;
-    public static int FOUR_CONSEC_COST                  = 80;
-    public static int FIVE_CONSEC_COST                  = Integer.MAX_VALUE/4;
+    public static final int SUBSET_OF_BEST_MOVES        = 40; // 40 moves for depth 4
+    public static       int DEPTH                       = 4;
+    public static       int TURN_TO_INCREASE_DEPTH      = 20; // found by trial and error
+    public static    double COST_MULTIPLIYER_WHEN_BLACK = 2; // White higher chance of winning: defend more if Black
+    public static       int POTENTIAL_WIN_COST          = Integer.MAX_VALUE/2;
+    public static       int WIN_COST                    = Integer.MAX_VALUE;
+    public static       int SINGLES_COST                = 6;
+    public static       int TWO_CONSEC_COST             = 20;
+    public static       int THREE_CONSEC_COST           = 40;
+    public static       int FOUR_CONSEC_COST            = 80;
+    public static       int FIVE_CONSEC_COST            = Integer.MAX_VALUE/4;
     public static final int FOUR_IN_SAME_RANGE          = 20;
     public static final int SIM_TIME_LIMIT              = 1000;
     public static final int CHOOSE_MOVE_TIME_LIMIT      = 1990;

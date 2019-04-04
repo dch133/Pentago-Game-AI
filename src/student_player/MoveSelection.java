@@ -7,6 +7,7 @@ import pentago_swap.PentagoMove;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -140,15 +141,23 @@ public class MoveSelection
         ArrayList<PentagoMove> topKBestMoves = new ArrayList<>(); //store best moves
         Object[] possibleMoves = movesAndCost.keySet().toArray(); //get a list of moves
 
+        if (possibleMoves.length < size)
+        {
+            for (int i = 0; i < possibleMoves.length; i++)
+            {
+                topKBestMoves.add((PentagoMove) possibleMoves[i]);
+            }
+            return topKBestMoves;
+        }
+
+
         // keep track of how many moves we put,and not to go over the limit
-        int j = 0;
         for (int i = possibleMoves.length-1; i > possibleMoves.length-1-size ; i--)
         {   //Don't consider moves less than the threshold value given: 0 -> only consider moves that are beneficial to me
             PentagoMove move = (PentagoMove) possibleMoves[i];
             if (movesAndCost.get(move) > cutOffThresh)
             {
                 topKBestMoves.add((PentagoMove) possibleMoves[i]);
-                j++;
             }
         }
         return topKBestMoves;
