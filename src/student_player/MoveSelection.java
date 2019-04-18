@@ -6,10 +6,7 @@ import pentago_swap.PentagoBoardState.Quadrant;
 import pentago_swap.PentagoMove;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 import static student_player.Heuristic.heuristicFunction;
 import static student_player.MyTools.*;
@@ -65,6 +62,7 @@ public class MoveSelection
     private static ArrayList<PentagoMove> filterBestLegalMoves(int studentPlayerTurnNumber, PentagoBoardState pbs)
     {
         ArrayList<PentagoMove> legalMoves = pbs.getAllLegalMoves();
+        Collections.shuffle(legalMoves);
         ArrayList<PentagoMove> bestLegalMoves = new ArrayList<>();
 
         for (PentagoMove nextMove: legalMoves)
@@ -73,12 +71,21 @@ public class MoveSelection
             PentagoBoardState newPbs = MyTools.copyCurrentBoardState(pbs);
             newPbs.processMove(nextMove);
 
-            boolean isGameWon = newPbs.gameOver() && Heuristic.checkIfWonOrLost(newPbs,studentPlayerTurnNumber)>0;
-            int heuristic = Heuristic.heuristicFunction(newPbs,studentPlayerTurnNumber);
-            boolean isPositiveHeuristic = heuristic>0;
-            if (isGameWon || isPositiveHeuristic)
+            boolean isGameLost = newPbs.gameOver() && Heuristic.checkIfWonOrLost(newPbs,studentPlayerTurnNumber) < 0;
+            boolean isGameWon = newPbs.gameOver() && Heuristic.checkIfWonOrLost(newPbs,studentPlayerTurnNumber) == WIN_COST;
+            //int heuristic = Heuristic.heuristicFunction(newPbs,studentPlayerTurnNumber);
+            //boolean isPositiveHeuristic = heuristic>0;
+            if (isGameWon) // If you win, return right away
+            {
+//                System.out.println("FOUND WINNING MOVE!!!");
+                bestLegalMoves = new ArrayList<>();
                 bestLegalMoves.add(nextMove);
+                return bestLegalMoves;
+            }
+            if (isGameLost) //|| isPositiveHeuristic)
+                continue;
 
+            bestLegalMoves.add(nextMove);
         }
         return  simulateMove(pbs,studentPlayerTurnNumber,bestLegalMoves);
 
@@ -93,20 +100,27 @@ public class MoveSelection
         long start = System.currentTimeMillis(); // Start timer
 
         ArrayList<PentagoMove> legalMoves = filterBestLegalMoves(turnNumber,pbs);
-        System.out.println("SIZE: "+legalMoves.size());
+
+        if (legalMoves.size() == 1) return legalMoves.get(0); //don run alphabeta on 1 element
+
+
+//        System.out.println("SIZE: "+legalMoves.size());
         for (PentagoMove currentMove :legalMoves)
         {
             // Avoid running out of time and play randomly if necessary
             if (System.currentTimeMillis() - start > CHOOSE_MOVE_TIME_LIMIT)
             {
-                System.out.println("TIME LIMIT EXCEEDED: Playing Best Available Move");
+//                System.out.println("TIME LIMIT EXCEEDED: Playing Best Available Move");
                 break;
             }
+
 
             PentagoBoardState newPbs = copyCurrentBoardState(pbs);
             newPbs.processMove(currentMove);
             valueOfMoves.put(currentMove, (double) alphabeta(turnNumber, newPbs,MyTools.DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, true));
         }
+
+//        System.out.println("NEW SIZE: "+valueOfMoves.size());
 
         // Sort the moves based on best heuristic value
         valueOfMoves = sortByValue(valueOfMoves);
@@ -256,7 +270,7 @@ public class MoveSelection
                     if (pbs.getPieceAt(i+3,j+3).compareTo(Piece.EMPTY) == 0)
                         availCells.add(new int[]{i+3,j+3});
             }
-        MyTools.printCurrentBoardSetup(pbs);
+//        MyTools.printCurrentBoardSetup(pbs);
         return buildAMove(turnNumber, availCells);
     }
 
@@ -284,44 +298,83 @@ public class MoveSelection
 
         HashMap<PentagoMove, Tuple> bestLegalMoves = new HashMap<>(); // Store Move and fraction of games won/total sims
         boolean simOver = false;
-        int simCount = 0;
+        double simCount = 1.0;
 
-        while(!simOver)
+        // Default Policy
+        for (PentagoMove nextMove : legalMoves)
+        {
+            // If 1st time simulation initialise the fraction 0/0
+            if(!bestLegalMoves.containsKey(nextMove))
+                bestLegalMoves.put(nextMove, new Tuple<>(0.0, 0.0));
+
+            //create a new boardState with the new move applied
+            PentagoBoardState newPbs = MyTools.copyCurrentBoardState(pbs);
+            newPbs.processMove(nextMove);
+
+            //simulate until the end
+            while (!newPbs.gameOver()) newPbs.processMove((PentagoMove) newPbs.getRandomMove());
+
+            boolean isGameWon = Heuristic.checkIfWonOrLost(newPbs,myTurnNumber)>0;
+
+            // update the fraction of games won/total games simulated
+            double numerator   = (double) bestLegalMoves.get(nextMove).x;
+            double denominator = (double) bestLegalMoves.get(nextMove).y;
+
+
+            if (isGameWon)
+                bestLegalMoves.put(nextMove, new Tuple<>(numerator + 1, denominator+1));
+            else bestLegalMoves.put(nextMove, new Tuple<>(numerator, denominator+1));
+        }
+
+        double maxUCT = -1;
+        PentagoMove nextMoveToSim = null;
+
+        // Use upper confidence trees to choose on which move you simulate next
+        while(true)
         {
             simCount++;
-            for (PentagoMove nextMove : legalMoves)
+            for (PentagoMove nextMove : bestLegalMoves.keySet())
             {
                 // Avoid running out of time and play randomly if necessary
                 if (System.currentTimeMillis() - start > SIM_TIME_LIMIT)
                 {
-                    System.out.println("TIME UP FOR SIMS: Ran "+ simCount);
+//                    System.out.println("TIME UP FOR SIMS: Ran "+ simCount);
                     simOver = true;
                     break;
                 }
 
-                // If 1st time simulation initialise the fraction 0/0
-                if(!bestLegalMoves.containsKey(nextMove))
-                    bestLegalMoves.put(nextMove, new Tuple<>(0.0, 0.0));
-
-                //create a new boardState with the new move applied
-                PentagoBoardState newPbs = MyTools.copyCurrentBoardState(pbs);
-                newPbs.processMove(nextMove);
-
-                //simulate until the end
-                while (!newPbs.gameOver()) newPbs.processMove((PentagoMove) newPbs.getRandomMove());
-
-                boolean isGameWon = Heuristic.checkIfWonOrLost(newPbs,myTurnNumber)>0;
-
-                // update the fraction of games won/total games simulated
-                double numerator   = (double) bestLegalMoves.get(nextMove).x;
-                double denominator = (double) bestLegalMoves.get(nextMove).y;
-
-
-                if (isGameWon)
-                    bestLegalMoves.put(nextMove, new Tuple<>(numerator + 1, denominator+1));
-                else bestLegalMoves.put(nextMove, new Tuple<>(numerator, denominator+1));
-
+                Tuple values = bestLegalMoves.get(nextMove);
+                double uctValue = ((double) values.x / (double) values.y) + Math.sqrt(2 * Math.log(simCount) / (double) values.y);
+                if (maxUCT < uctValue)
+                {
+                    maxUCT = uctValue;
+                    nextMoveToSim = nextMove;
+                }
             }
+
+            if (simOver) break; //get out of the while loop
+
+            //create a new boardState with the new move applied
+            PentagoBoardState newPbs = MyTools.copyCurrentBoardState(pbs);
+            newPbs.processMove(nextMoveToSim);
+
+            //simulate until the end
+            while (!newPbs.gameOver()) newPbs.processMove((PentagoMove) newPbs.getRandomMove());
+
+            boolean isGameWon = Heuristic.checkIfWonOrLost(newPbs,myTurnNumber)>0;
+
+            // update the fraction of games won/total games simulated
+            double numerator   = (double) bestLegalMoves.get(nextMoveToSim).x;
+            double denominator = (double) bestLegalMoves.get(nextMoveToSim).y;
+
+            if (isGameWon)
+                    bestLegalMoves.put(nextMoveToSim, new Tuple<>(numerator + 1, denominator+1));
+                else bestLegalMoves.put(nextMoveToSim, new Tuple<>(numerator, denominator+1));
+
+            // reset the check
+            nextMoveToSim = null;
+            maxUCT = -1;
+
         }
 
         // Get the map of moves to fraction of game won
@@ -335,10 +388,10 @@ public class MoveSelection
 
         movesAndFraction = sortByValue(movesAndFraction); //sort in increasing order
 
-        System.out.println("FINISHED SIMULATING: Running alpha-beta pruning on the best moves from simulation");
+//        System.out.println("FINISHED SIMULATING: Running alpha-beta pruning on the best moves from simulation");
 
         // Return the best K-moves
-        return  getFilteredBestMovesList(movesAndFraction,SUBSET_OF_BEST_MOVES,0.0);
+        return  getFilteredBestMovesList(movesAndFraction,SUBSET_OF_BEST_MOVES,Integer.MIN_VALUE/2);
 
 
 

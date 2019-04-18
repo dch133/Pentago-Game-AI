@@ -53,7 +53,7 @@ public class HorizontalsVerticals
 //        if(studentTurnNumber == 1)
 //            return heuristicInStudFavor - heuristicInOppFavor;
 //        else
-//            return heuristicInStudFavor - (int) Math.ceil(COST_MULTIPLIYER_WHEN_BLACK*heuristicInOppFavor);
+//            return heuristicInStudFavor - (int) Math.ceil(COST_MULTIPLIER_WHEN_BLACK*heuristicInOppFavor);
 
         return heuristicInStudFavor - heuristicInOppFavor;
 

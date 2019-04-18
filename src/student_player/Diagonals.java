@@ -41,34 +41,34 @@ public class Diagonals
         //Count how sets of good strategy positions pieces I have for each diag
         //TLR, MLR, BLR, TRL, MRL, BRL
         int studTLR = calcCostPiecesTopBottomDiags(TLR,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
-//        int studMLR = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MLR,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
+        int studMLR = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MLR,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
         int studBLR = calcCostPiecesTopBottomDiags(BLR,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
         int studTRL = calcCostPiecesTopBottomDiags(TRL,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
-//        int studMRL = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MRL,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
+        int studMRL = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MRL,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
         int studBRL = calcCostPiecesTopBottomDiags(BRL,studentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
 
         //Count how sets of good strategy positions pieces Opponent have for each diag
         int oppTLR = calcCostPiecesTopBottomDiags(TLR,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
-//        int oppMLR = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MLR,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
+        int oppMLR = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MLR,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
         int oppBLR = calcCostPiecesTopBottomDiags(BLR,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
         int oppTRL = calcCostPiecesTopBottomDiags(TRL,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
-//        int oppMRL = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MRL,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
+        int oppMRL = Heuristic.calcCostPiecesMiddleDiagsHorizontalsVerticals(MRL,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
         int oppBRL = calcCostPiecesTopBottomDiags(BRL,opponentTurnNumber,topLeftQuad,topRightQuad,bottomLeftQuad,bottomRightQuad);
 
 
-//        int heuristicInStudFavor = studTLR+studMLR+studBLR+studTRL+studMRL+studBRL;
-//        int heuristicInOppFavor = oppTLR+oppMLR+oppBLR+oppTRL+oppMRL+oppBRL;
+        int heuristicInStudFavor = studTLR+studMLR+studBLR+studTRL+studMRL+studBRL;
+        int heuristicInOppFavor = oppTLR+oppMLR+oppBLR+oppTRL+oppMRL+oppBRL;
 
-
-        int heuristicInStudFavor = studTLR+studBLR+studTRL+studBRL;
-        int heuristicInOppFavor = oppTLR+oppBLR+oppTRL+oppBRL;
+//
+//        int heuristicInStudFavor = studTLR+studBLR+studTRL+studBRL;
+//        int heuristicInOppFavor = oppTLR+oppBLR+oppTRL+oppBRL;
 
 
         // Increase the thread worth slightly if you play as Black
 //        if(studentTurnNumber == 1)
 //            return heuristicInStudFavor - heuristicInOppFavor;
 //        else
-//            return heuristicInStudFavor - (int) Math.ceil(COST_MULTIPLIYER_WHEN_BLACK*heuristicInOppFavor);
+//            return heuristicInStudFavor - (int) Math.ceil(COST_MULTIPLIER_WHEN_BLACK*heuristicInOppFavor);
 
         return heuristicInStudFavor-heuristicInOppFavor;
     }

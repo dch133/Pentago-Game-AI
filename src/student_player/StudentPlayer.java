@@ -32,7 +32,11 @@ public class StudentPlayer extends PentagoPlayer {
         PentagoBoardState pbs = MyTools.copyCurrentBoardState(boardState);
 
         int myTurnNumber = pbs.getTurnPlayer();
-        MyTools.DEPTH = 2;  //Reset depth to default
+        MyTools.DEPTH = 1;  //Reset depth to default
+
+        // Start at deeper depth if black
+        if (myTurnNumber == 1) MyTools.DEPTH = 2;
+
 
         // 1st & 2nd turn moves strategy
         if (MyTools.getGameTurnNumber(pbs) < 3)
@@ -46,6 +50,11 @@ public class StudentPlayer extends PentagoPlayer {
         {
             // Increase depth after kth turn - less moves available = go deeper in tree
             if (MyTools.getGameTurnNumber(pbs) > MyTools.TURN_TO_INCREASE_DEPTH)
+                // Start at deeper depth if black
+                if (myTurnNumber == 1) MyTools.DEPTH = 3;
+                MyTools.DEPTH = 2;
+
+            if (MyTools.getGameTurnNumber(pbs) > 2*MyTools.TURN_TO_INCREASE_DEPTH)
                 MyTools.DEPTH = 3;
 
             myMove = MoveSelection.calculateBestMove(myTurnNumber, pbs);

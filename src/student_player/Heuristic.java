@@ -22,18 +22,18 @@ public class Heuristic
             return POTENTIAL_WIN_COST; //Next move is a potential winning position: give it high priority
 
         return horizontalCost+verticalCost+diagonalCost;
-//
+
 //        int horizontalAndVerticalCost = HorizontalsVerticals.checkHorizontalsAndVerticals(pbs,myTurnNumber);
 //        int diagonalsCost = Diagonals.checkDiag(pbs,myTurnNumber);
 //
 //        return horizontalAndVerticalCost+diagonalsCost;
     }
 
-    public static int checkIfWonOrLost(PentagoBoardState pbs, int studentPlayerTurnNumber)
+    public static int checkIfWonOrLost(PentagoBoardState pbs, int studentPlayerNumber)
     {
         // Check if game is over
         int winner = pbs.getWinner();
-        if (winner == studentPlayerTurnNumber)
+        if (winner == studentPlayerNumber)
             return WIN_COST; // I wins
         else
             return -1*WIN_COST; // opponent wins
@@ -88,7 +88,9 @@ public class Heuristic
 
         int heuristicInStudFavor = studConsecTR+studConsecMR+studConsecBR;
         int heuristicInOppFavor = oppConsecTR+oppConsecMR+oppConsecBR;
-        return heuristicInStudFavor-heuristicInOppFavor;
+        return heuristicInStudFavor-(int) COST_MULTIPLIER_WHEN_BLACK *heuristicInOppFavor;
+
+//        return heuristicInStudFavor-heuristicInOppFavor;
     }
 
     /*
@@ -140,7 +142,7 @@ public class Heuristic
 
         int heuristicInStudFavor = studConsecLC+studConsecMC+studConsecRC;
         int heuristicInOppFavor = oppConsecLC+oppConsecMC+oppConsecRC;
-        return heuristicInStudFavor-(int) COST_MULTIPLIYER_WHEN_BLACK*heuristicInOppFavor;
+        return heuristicInStudFavor-(int) COST_MULTIPLIER_WHEN_BLACK *heuristicInOppFavor;
     }
 
 
